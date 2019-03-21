@@ -18,7 +18,7 @@
 		web2.vm.box = "ubuntu/xenial64"
 		web2.vm.hostname = "web2"
 		web2.vm.network "private_network", ip: "192.168.55.101"
-		web2.vm.network "forwarded_port", guest:80, host:8080, auto_correct: true
+		web2.vm.network "forwarded_port", guest:80, host:8081, auto_correct: true
 		web2.vm.provider "virtualbox" do |vb|
 			vb.memory = "1024"  
 		end
@@ -30,12 +30,12 @@
 		repx.vm.box = "ubuntu/xenial64"
 		repx.vm.hostname = "reverseproxy"
 		repx.vm.network "private_network", ip: "192.168.55.102"
-		repx.vm.network "forwarded_port", guest:80, host:80, auto_correct: true
+		repx.vm.network "forwarded_port", guest:80, host:8000, auto_correct: true
 		repx.vm.provider "virtualbox"
 		repx.vm.provider "virtualbox" do |vb|
 			vb.memory = "1024"  
 		end
-		repx.vm.synced_folder "konf", "/etc/apache2/sites-available/" 
+		repx.vm.synced_folder "konf", "/vagrant" 
 		repx.vm.provision "shell", path: "proxy.sh"
   end
 end
