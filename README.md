@@ -33,7 +33,7 @@ Als Passwort habe ich 12345 genutzt, da es ja nur ein Test/ Schulprojekt und kei
 Da ich zuvor noch fast keine Berührungen mit GitHub hatte musste ich nun noch ein GitHub Account erstellen.
 
 #### Git-Client wurde verwendet
-
+Mit dem Client hatte ich anfangs recht mühe da ich das Prinzip dahinter nicht verstanden habe. Nach einer kurzen Einführung meines Partners hab ich es endlich begriffen und konnte es anwenden. Mein Repository heisst folgendermassen: romansigner/ Modul300-RS
 
 
 
@@ -67,6 +67,101 @@ Da ich in einer Internen IT arbeite, ist Systemsicherheit ein Alltägliches Them
 
 
 #### Vagrant
+
+#### Code
+
+Ich habe in meiner Vagrant Umgebung nicht nur mit dem Vagrantfile gearbeitet sondern auch noch mit  verschiedenen Skripts welche dann vom Vagrantfile ausgeführt werden.
+
+##### Vagrantfile
+
+```
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+ Vagrant.configure("2") do |config|
+	config.vm.define "web1" do |web1|
+		web1.vm.box = "ubuntu/xenial64"
+		web1.vm.hostname = "web1"
+		web1.vm.network "private_network", ip: "192.168.55.100"
+		web1.vm.network "forwarded_port", guest:80, host:8080, auto_correct: true
+		web1.vm.provider "virtualbox" do |vb|
+			vb.memory = "1024"  
+		end
+		web1.vm.synced_folder "datei", "/var/www/html"  
+		web1.vm.provision "shell", path: "web.sh"
+  end
+
+  	config.vm.define "web2" do |web2|
+		web2.vm.box = "ubuntu/xenial64"
+		web2.vm.hostname = "web2"
+		web2.vm.network "private_network", ip: "192.168.55.101"
+		web2.vm.network "forwarded_port", guest:80, host:8080, auto_correct: true
+		web2.vm.provider "virtualbox" do |vb|
+			vb.memory = "1024"  
+		end
+		web2.vm.synced_folder "datei", "/var/www/html"  
+		web2.vm.provision "shell", path: "web.sh"
+  end
+  
+	config.vm.define "repx" do |repx|
+		repx.vm.box = "ubuntu/xenial64"
+		repx.vm.hostname = "reverseproxy"
+		repx.vm.network "private_network", ip: "192.168.55.102"
+		repx.vm.network "forwarded_port", guest:80, host:80, auto_correct: true
+		repx.vm.provider "virtualbox"
+		repx.vm.provider "virtualbox" do |vb|
+			vb.memory = "1024"  
+		end
+		repx.vm.synced_folder "konf", "/etc/apache2/sites-available/" 
+		repx.vm.provision "shell", path: "proxy.sh"
+  end
+end
+```
+
+##### web.sh
+
+```
+#!/bin/bash
+#
+#Datenbank installieren und Konfigurieren
+#
+
+apt-get update -y
+apt-get -y install apache2
+apt install php-pear php-fpm php-dev php-zip php-curl php-xmlrpc php-gd php-mysql php-mbstring php-xml libapache2-mod-php -y
+
+service apache2 restart
+
+#firewall einstellen
+apt-get install ufw
+sudo ufw enable
+sudo ufw allow 80/tcp
+sudo ufw allow from 192.168.43.214 to any port 22
+
+```
+
+##### Proxy.sh
+
+```
+#!/bin/bash
+#
+#Datenbank installieren und Konfigurieren
+#
+
+apt-get update -y
+apt-get -y install apache2
+apt install php-pear php-fpm php-dev php-zip php-curl php-xmlrpc php-gd php-mysql php-mbstring php-xml libapache2-mod-php -y
+service apache2 restart
+
+sudo a2enmod proxy
+sudo a2enmod proxy_html
+sudo a2enmod proxy_http
+sudo a2ensite 001-mysite.conf
+
+service apache2 restart
+```
+
+
 
 ##### Vagrant Befehle
 
